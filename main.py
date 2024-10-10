@@ -1,7 +1,7 @@
 import ir_datasets
 
 dataset = ir_datasets.load("nfcorpus")
-for query in dataset.queries_iter():
-    print(query)
+for doc in dataset.docs_iter():
+    doc
 
 
