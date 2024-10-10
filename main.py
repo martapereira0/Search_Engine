@@ -1,6 +1,6 @@
 import ir_datasets
 
-dataset = ir_datasets.load("cranfield")
+dataset = ir_datasets.load("nfcorpus")
 for query in dataset.queries_iter():
     print(query)
 
