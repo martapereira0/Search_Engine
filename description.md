@@ -3,24 +3,24 @@
 ## Data Source
 **BEIR (Benchmarking Information Retrieval)** é uma biblioteca composta por vários datasets, cada um destinado a avaliar o desempenho de modelos de recuperação de informações em diferentes domínios, como por exemplo na saúde e tecnologia. Permitindo assim, que investigadores e desenvolvedores testem a eficácia dos modelos de pesquisa e recuperação em responder a consultas reais.
 
-O **nfcorpus** é um desses datasets, disponibilizado pelo grupo Statistical Natural Language Processing da Universidade de Heidelberg na Alemanha, focado especificamente no domínio nutricional.
+O **nfcorpus** é um desses datasets, disponibilizado pelo grupo [StatNLP](https://www.cl.uni-heidelberg.de/statnlpgroup/) - Statistical Natural Language Processing da Universidade de Heidelberg, focado especificamente no domínio nutricional.
 Este contém pares de perguntas e documentos (respostas), onde os documentos contêm informações nutricionais e as perguntas representam possíveis consultas que os sistemas de recuperação devem responder. Por exemplo, uma pergunta pode ser "Qual é o teor de proteína no frango?", e o documento associado apresentará informações detalhadas sobre o frango, incluindo o teor de proteína.
 
 Assim sendo, o **nfcorpus** foi desenvolvido para medir a capacidade de sistemas de recuperação de informações em encontrar respostas precisas e relevantes dentro de uma base de dados nutricional, servindo como uma ferramenta para benchmarking de sistemas de pesquisa.
 
 ## Licença
-Este dataset é disponibilizador gratuitamente para fins académicos. No entanto, para qualquer outro uso é necessário consultar os Termos de Serviço do NutritionFacts.org e entrar em contacto direto com o autor dos dados, Sr. Michael Greger.
+Este dataset é disponibilizador gratuitamente para fins académicos. No entanto, para qualquer outro uso é necessário consultar os Termos de Serviço do [NutritionFacts.org](https://nutritionfacts.org) e entrar em contacto direto com o autor dos dados, Sr. Michael Greger.
 
 
 ### Formato dos Dados
-O dataset BEIR/nfcorpus é composto por três tipos de documentos distintos, organizados em três subconjuntos: treino, desenvolvimento e teste. Cada subconjunto contém:
+O dataset [BEIR/nfcorpus](https://ir-datasets.com/beir.html#beir/nfcorpus) é composto por três tipos de documentos distintos, organizados em três subconjuntos: treino, desenvolvimento e teste. Cada subconjunto contém:
 
-- **Consultas do NutritionFacts.org** (.queries files): Documentos que contêm as perguntas ou consultas retiradas do site NutritionFacts.org, escritas em linguagem natural, sem uso de termos técnicos, facilitando a simulação de consultas reais de utilizadores.
+- **Consultas do NutritionFacts.org** (.queries files): Documentos que contêm as perguntas ou consultas retiradas do site NutritionFacts.org, incluindo vídeos, blogs e Q&A. Estas consultas, são escritas em linguagem natural, sem uso de termos técnicos, facilitando a simulação de consultas reais de utilizadores.
 
-- **Documentos Médicos** (.docs files): Documentos que contêm os documentos médicos utilizados para responder às consultas. Estes são mais técnicos e detalhados, provenientes de fontes médicas e escritos em linguagem especializada.
+- **Documentos Médicos** (.docs files): Documentos, na maioria extraídos do [Pubmed](https://pubmed.ncbi.nlm.nih.gov), que contêm os documentos médicos utilizados para responder às consultas. Estes são mais técnicos e detalhados, provenientes de fontes médicas e escritos em linguagem especializada.
 
-- **Relevância de Pareamento** (.qrel files): Documentos que indicam a relevância de cada documento em relação às consultas, com diferentes níveis de relevância. A relevância é definida com base nas conexões entre os artigos do NutritionFacts.org e documentos médicos externos:
-  - **Nível mais relevante**: Documento com link direto em um artigo do NutritionFacts.
+- **Relevância de Pareamento** (.qrel files): Documentos que indicam a relevância de cada documento em relação às consultas, com diferentes níveis de relevância. A relevância é definida com base nas ligações entre os artigos do NutritionFacts.org e documentos médicos externos do PubMed:
+  - **Nível mais relevante**: Documento com link direto num artigo do NutritionFacts.
   - **Segundo nível de relevância**: Documento citado por meio de um artigo intermediário do NutritionFacts.
   - **Menor nível de relevância**: Documento associado por meio de um sistema de tópicos/tags do NutritionFacts.
 
