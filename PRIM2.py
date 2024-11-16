@@ -39,7 +39,7 @@ spacy_ner = SpacyNERComponent()
 
 indexing_pipeline = Pipeline()
 #COmponente que add à base de dados elastic por keywords
-indexing_pipeline.add_component("spacy_ner", instance=spacy_ner)# Componente spacy que classifica NER e adiciona aos metadados
+indexing_pipeline.add_component("spacy_ner", spacy_ner)# Componente spacy que classifica NER e adiciona aos metadados
 indexing_pipeline.add_component("splitter", splitter)  # Divide documentos grandes
 indexing_pipeline.add_component("doc_embedder", doc_embedder) # Embedding dos documentos (faz mais sentido dividir em frases antes deste paço mas não sei bem como mantemos tudo relacionado ao mesmo documento)
 # componente para adicionar docs ao elastic por embeddings
