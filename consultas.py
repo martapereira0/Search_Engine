@@ -17,7 +17,7 @@ queryVec = {
     "script_score": {
         "query": {"match_all": {}},
         "script": {
-            "source": "cosineSimilarity(params.query_vector, 'vector') + 1.0",
+            "source": "cosineSimilarity(params.query_vector, 'vector')",
             "params": {"query_vector": query_vector}
         }
     }
@@ -27,7 +27,14 @@ response = es.search(index="vector_index", body={"query": queryVec, "size": 8})
 
 print("\nResultados da busca semântica:")
 for hit in response['hits']['hits']:
-    print(hit["_source"]['doc_id'] + ": " + hit["_source"]['section'] + "\n")
+    print(
+        hit["_source"]['doc_id']
+        + ": "
+        + hit["_source"]['section']
+        + " | Score: "
+        + str(hit["_score"])  # Converte o _score para string
+        + "\n"
+    )
 
 print("\n\n\n")
 
