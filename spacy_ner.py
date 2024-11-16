@@ -12,4 +12,4 @@ class SpacyNERComponent:
             doc_nlp = self.nlp(doc.content)
             entities = [(ent.text, ent.label_) for ent in doc_nlp.ents]
             doc.meta["entities"] = entities
-        return documents # docs com as entidades já adicionadas aos metadados
+        return {"documents": documents} # docs com as entidades já adicionadas aos metadados
