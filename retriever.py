@@ -3,7 +3,9 @@ from elasticsearch import Elasticsearch
 from haystack.components.embedders import SentenceTransformersTextEmbedder, SentenceTransformersDocumentEmbedder
 from haystack import component, Document
 from sentence_transformers import SentenceTransformer
+import spacy
 
+nlp = spacy.load("en_core_web_sm")
 
 key="4pd-HHNXzRF_yapcrUOn"
 
@@ -61,25 +63,47 @@ class SearchKW():
             http_auth=("elastic", key),
             verify_certs=False
         )
+        all_results = []
+        user_prompt=extract_keywords(user_prompt)
 
-        # Consulta por keywords
-        response = es.search(
-            index="keyword_index",
-            query={
-                "match_phrase": {
-                    "content": user_prompt  # Use o termo textual para busca
-                }
-            },
-            size=8  # Número de resultados retornados
-        )
+        for keyword in user_prompt:
+            # Consulta por uma única keyword
+            response = es.search(
+                index="keyword_index",
+                query={
+                    "match_phrase": {
+                        "content": keyword  # Use cada termo textual para busca
+                    }
+                },
+                size=8  # Número de resultados retornados por busca
+            )
 
-        # Exibição dos resultados
-        print(f"Resultados da busca por frase '{user_prompt}':")
-        results=[]
-        for hit in response['hits']['hits']:
-            doc_id = hit['_source']['doc_id']
-            score = hit['_score']
-            results.append({'doc_id': doc_id, 'score': score})
+            # Adicionar resultados à lista geral
+            for hit in response['hits']['hits']:
+                doc_id = hit['_source']['doc_id']
+                score = hit['_score']
+                all_results.append({'doc_id': doc_id, 'score': score})
+
+        # Ordenar os resultados por score em ordem decrescente
+        all_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
+
+        # Remover duplicados, mantendo o maior score (opcional)
+        unique_results = {}
+        for result in all_results:
+            if result['doc_id'] not in unique_results:
+                unique_results[result['doc_id']] = result
+
+        # Selecionar os 8 documentos com maior score
+        final_results = list(unique_results.values())[:8]
         
 
-        return {"KW": results}
+        return {"KW": final_results}
+    
+
+
+def extract_keywords(text):
+    # Processar o texto
+    doc = nlp(text)
+    # Extrair substantivos ou palavras relevantes
+    keywords = [token.text for token in doc if token.pos_ in ["NOUN", "PROPN"]]
+    return keywords
