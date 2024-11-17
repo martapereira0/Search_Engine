@@ -5,7 +5,8 @@ from haystack.components.embedders import SentenceTransformersTextEmbedder, Sent
 from haystack import component, Document
 
 
-key="4pd-HHNXzRF_yapcrUOn"
+#key="4pd-HHNXzRF_yapcrUOn"
+key="qwWTCM+LacryzqIqFlzn"
 
 @component
 class save_kw():
@@ -24,7 +25,7 @@ class save_kw():
         # Configurar conexão com Elasticsearch
         es = Elasticsearch(
             hosts="https://localhost:9200",
-            basic_auth=("elastic", key),
+            http_auth=("elastic", key),
             verify_certs=False
         )
 
@@ -74,7 +75,7 @@ class save_vs():
         """
         es = Elasticsearch(
             hosts="https://localhost:9200",
-            basic_auth=("elastic", key),
+            http_auth=("elastic", key),
             verify_certs=False
         )
         

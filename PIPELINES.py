@@ -58,7 +58,7 @@ def retrieval(prompt):
 
     return res
 
-# indexing(haystack_docs)
+#indexing(haystack_docs)
 
-# result= retrieval("How fish increases immunity?")
-# print(result)
+result= retrieval("How fish increases immunity?")
+print(result)

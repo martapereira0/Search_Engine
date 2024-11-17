@@ -7,7 +7,8 @@ import spacy
 
 nlp = spacy.load("en_core_web_sm")
 
-key="4pd-HHNXzRF_yapcrUOn"
+#key="4pd-HHNXzRF_yapcrUOn"
+key="qwWTCM+LacryzqIqFlzn"
 
 @component
 class SearchVS():
@@ -49,7 +50,8 @@ class SearchVS():
         for hit in response['hits']['hits']:
             doc_id = hit['_source']['doc_id']
             score = hit['_score']
-            results.append({'doc_id': doc_id, 'score': score})
+            if score > 1.0:
+                results.append({'doc_id': doc_id, 'score': score})
         
 
         return {"VS": results}
