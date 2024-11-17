@@ -1,7 +1,14 @@
 from elasticsearch import Elasticsearch
 
 # Conectar ao Elasticsearch
-es = Elasticsearch([{'host': 'localhost', 'port': 9200}])
+es = Elasticsearch(
+    hosts="https://localhost:9200",
+    basic_auth=("elastic", "4pd-HHNXzRF_yapcrUOn"),
+    verify_certs=False
+)
+
+print(es.count(index="keyword_index"))
+
 
 # Consulta semântica (vetorial)
 from sentence_transformers import SentenceTransformer
@@ -39,7 +46,7 @@ response = es.search(
     index="keyword_index",
     query={
         "match_phrase": {
-            "entity": query_keyword  # Use o termo textual para busca
+            "content": query_keyword  # Use o termo textual para busca
         }
     },
     size=5  # Número de resultados retornados
