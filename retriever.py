@@ -31,7 +31,7 @@ class SearchVS():
 
         prompt_mimi=embedder.run(user_prompt)
 
-        print(len(prompt_mimi['embedding']))
+        # print(len(prompt_mimi['embedding']))
 
         queryVec = {
             "script_score": {

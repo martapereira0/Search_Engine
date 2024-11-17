@@ -18,8 +18,9 @@ haystack_docs = [
     for doc in dataset.docs_iter()
 ]
 
+
 #Para testar usamos poucos docs
-haystack_docs=haystack_docs[:2]
+# haystack_docs=haystack_docs[:2]
 
 os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
@@ -55,8 +56,9 @@ def retrieval(prompt):
 
     res = retrieval_pipeline.run({"VS":{"user_prompt": prompt},"KW": {"user_prompt": prompt}})
 
-    print(res)
+    return res
 
 # indexing(haystack_docs)
 
-retrieval("Cancer")
+# result= retrieval("How fish increases immunity?")
+# print(result)
