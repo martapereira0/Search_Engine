@@ -18,6 +18,7 @@ class save_kw():
         Args:
             documents (list): Lista de objetos `Document` da biblioteca Haystack.
         """
+        print(" A guardar no keyword_index")
         index_name = "keyword_index"
 
         # Configurar conexão com Elasticsearch
@@ -76,6 +77,8 @@ class save_vs():
             basic_auth=("elastic", key),
             verify_certs=False
         )
+        
+        print(" A guardar no vector_index")
 
         # Usar o embedder de documento
         embedder = SentenceTransformersDocumentEmbedder()
