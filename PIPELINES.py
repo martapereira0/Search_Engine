@@ -6,6 +6,7 @@ from haystack.components.preprocessors import DocumentSplitter
 from writer import save_vs,save_kw
 from retriever import SearchVS,SearchKW
 from spacy_ner import SpacyNERComponent
+import os
 
 dataset = ir_datasets.load("beir/nfcorpus")
 
@@ -20,7 +21,7 @@ haystack_docs = [
 #Para testar usamos poucos docs
 haystack_docs=haystack_docs[:2]
 
-
+os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
 
 def indexing(docs):
     indexing_pipeline = Pipeline()
@@ -55,3 +56,7 @@ def retrieval(prompt):
     res = retrieval_pipeline.run({"VS":{"user_prompt": prompt},"KW": {"user_prompt": prompt}})
 
     print(res)
+
+# indexing(haystack_docs)
+
+retrieval("Cancer")

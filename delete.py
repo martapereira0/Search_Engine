@@ -8,7 +8,7 @@ es = Elasticsearch(
 )
 
 # Nome do índice a ser deletado
-index_name = "keyword_index"
+index_name = "vector_index"
 
 # Apagar o índice
 try:

@@ -93,7 +93,7 @@ class save_vs():
                     "doc_id": {"type": "keyword"},
                     "content": {
                         "type": "dense_vector",
-                        "dims": 384  # Ou outro valor de dimensão dependendo do modelo
+                        "dims": 768  # Ou outro valor de dimensão dependendo do modelo
                     }
                 }
             }
@@ -109,12 +109,17 @@ class save_vs():
         for doc in embedded_docs['documents']:
             # Extraímos o vetor de embeddings diretamente do documento
             vector = doc.embedding
+            # Verificar o tamanho do vetor de embedding
+            print(f"Tamanho do vetor gerado: {len(doc.embedding)}")
+
 
             # Estrutura do documento para indexação
             body = {
                 "doc_id": doc.meta.get("doc_id", "unknown"),  # Garantir que 'doc_id' está nos metadados
                 "content": vector
             }
+
+            print(doc)
 
             # Indexar o documento no Elasticsearch
             es.index(index=index_name, id=doc.id, body=body)

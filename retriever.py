@@ -19,26 +19,32 @@ class SearchVS():
             verify_certs=False
         )
 
-
+        print("ei")
         # Carregar modelo para gerar o vetor da query
-        embedder = SentenceTransformer('paraphrase-MiniLM-L6-v2')
-
+        print("eii")
         # Gerar o vetor do prompt
-        user_prompt_modi = embedder.encode([user_prompt])[0]
+
+        embedder = SentenceTransformersTextEmbedder()
+
         # Inicializa o modelo de embeddings
-            
+        embedder.warm_up()
+        # Inicializa o modelo de embeddings
+
+        prompt_mimi=embedder.run(user_prompt)
+
+        print(len(prompt_mimi['embedding']))
 
         queryVec = {
             "script_score": {
                 "query": {"match_all": {}},
                 "script": {
-                    "source": "cosineSimilarity(params.query_vector, 'vector') + 1.0",
-                    "params": {"query_vector": user_prompt_modi}
+                    "source": "cosineSimilarity(params.query_vector, 'content') + 1.0",
+                    "params": {"query_vector": prompt_mimi["embedding"]}
                 }
             }
         }
 
-        response = es.search(index="vector_index", body={"query": queryVec, "size": 1})
+        response = es.search(index="vector_index", body={"query": queryVec, "size": 8})
 
         print("\nResultados da busca semântica:")
         
