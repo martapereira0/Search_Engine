@@ -15,14 +15,11 @@ class SearchVS():
         # Conectar ao Elasticsearch
         es = Elasticsearch(
             hosts="https://localhost:9200",
-            basic_auth=("elastic", key),
+            http_auth=("elastic", key),
             verify_certs=False
         )
 
-        print("ei")
-        # Carregar modelo para gerar o vetor da query
-        print("eii")
-        # Gerar o vetor do prompt
+  
 
         embedder = SentenceTransformersTextEmbedder()
 
@@ -46,10 +43,14 @@ class SearchVS():
 
         response = es.search(index="vector_index", body={"query": queryVec, "size": 8})
 
-        print("\nResultados da busca semântica:")
+        results = []
+        for hit in response['hits']['hits']:
+            doc_id = hit['_source']['doc_id']
+            score = hit['_score']
+            results.append({'doc_id': doc_id, 'score': score})
         
 
-        return {"VS": response}
+        return {"VS": results}
 @component
 class SearchKW():
 
@@ -57,10 +58,9 @@ class SearchKW():
     def run(self,user_prompt:str):
         es = Elasticsearch(
             hosts="https://localhost:9200",
-            basic_auth=("elastic", key),
+            http_auth=("elastic", key),
             verify_certs=False
         )
-        # Consulta por keywords
 
         # Consulta por keywords
         response = es.search(
@@ -70,11 +70,16 @@ class SearchKW():
                     "content": user_prompt  # Use o termo textual para busca
                 }
             },
-            size=1  # Número de resultados retornados
+            size=8  # Número de resultados retornados
         )
 
         # Exibição dos resultados
         print(f"Resultados da busca por frase '{user_prompt}':")
+        results=[]
+        for hit in response['hits']['hits']:
+            doc_id = hit['_source']['doc_id']
+            score = hit['_score']
+            results.append({'doc_id': doc_id, 'score': score})
         
 
-        return {"KW": response}
+        return {"KW": results}
