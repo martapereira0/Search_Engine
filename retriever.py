@@ -50,7 +50,7 @@ class SearchVS():
         for hit in response['hits']['hits']:
             doc_id = hit['_source']['doc_id']
             score = hit['_score']
-            if score > 0:
+            if score > 1.0:
                 results.append({'doc_id': doc_id, 'score': score})
         
 
