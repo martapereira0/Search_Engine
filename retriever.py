@@ -8,7 +8,7 @@ import spacy
 nlp = spacy.load("en_core_web_sm")
 
 #key="4pd-HHNXzRF_yapcrUOn"
-key="4pd-HHNXzRF_yapcrUOn"
+key="qwWTCM+LacryzqIqFlzn"
 
 @component
 class SearchVS():
@@ -52,7 +52,7 @@ class SearchVS():
         for hit in response['hits']['hits']:
             doc_id = hit['_source']['doc_id']
             score = hit['_score']
-            if score > 1 and doc_id not in seen_ids:
+            if doc_id not in seen_ids:
                 results.append({'doc_id': doc_id, 'score': score})
                 seen_ids.add(doc_id)  # Marca o ID como já visto
 
@@ -87,8 +87,7 @@ class SearchKW():
             for hit in response['hits']['hits']:
                 doc_id = hit['_source']['doc_id']
                 score = hit['_score']
-                if not score<5:
-                    all_results.append({'doc_id': doc_id, 'score': score})
+                all_results.append({'doc_id': doc_id, 'score': score})
 
         # Ordenar os resultados por score em ordem decrescente
         all_results = sorted(all_results, key=lambda x: x['score'], reverse=True)

@@ -60,5 +60,42 @@ def retrieval(prompt):
 
 #indexing(haystack_docs)
 
-result= retrieval("How fish increases immunity?")
-print(result)
+#result= retrieval("How plant-based diets help prevent specific diseases.")
+#result=retrieval("Natural treatments for rheumatoid arthritis.")
+#result=retrieval("Effects of high-cholesterol foods on heart disease risk.")
+#result=retrieval("Traditional medicine vs. holistic treatments.")
+#result=retrieval("Studies on the effectiveness of Vitamin D in cancer prevention.")
+"""
+# Imprimir os documentos e scores de cada pesquisa
+print("VS (Pesquisa 1):")
+for doc in result['VS']['VS']:
+    print(f"Document ID: {doc['doc_id']}, Score: {doc['score']}")
+
+# Imprimir a quantidade de documentos da pesquisa VS
+vs_docs = result['VS']['VS']
+print(f"\nQuantidade de documentos retornados na pesquisa VS: {len(vs_docs)}")
+
+print("\nKW (Pesquisa 2):")
+for doc in result['KW']['KW']:
+    print(f"Document ID: {doc['doc_id']}, Score: {doc['score']}")
+
+# Imprimir a quantidade de documentos da pesquisa KW
+kw_docs = result['KW']['KW']
+print(f"\nQuantidade de documentos retornados na pesquisa KW: {len(kw_docs)}")
+
+# Encontrar os documentos em comum entre as duas pesquisas
+vs_doc_ids = {doc['doc_id'] for doc in vs_docs}
+kw_doc_ids = {doc['doc_id'] for doc in kw_docs}
+
+# Documentos em comum
+common_docs = vs_doc_ids.intersection(kw_doc_ids)
+
+# Imprimir os documentos em comum
+print("\nDocumentos em comum nas duas pesquisas:")
+for doc_id in common_docs:
+    print(doc_id)
+
+# Imprimir a quantidade de documentos em comum
+print(f"\nQuantidade de documentos em comum: {len(common_docs)}")"""
+
+#print(result)
