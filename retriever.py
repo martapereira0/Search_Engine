@@ -47,12 +47,12 @@ class SearchVS():
         results = []
         seen_ids = set()  # Set para controlar IDs já vistos
 
-        response = es.search(index="vector_index", body={"query": queryVec, "size": 100})
-        
+        response = es.search(index="vector_index", body={"query": queryVec, "size": 20})
+
         for hit in response['hits']['hits']:
             doc_id = hit['_source']['doc_id']
             score = hit['_score']
-            if score > 1.5 and doc_id not in seen_ids:  # Verifica duplicados
+            if score > 1 and doc_id not in seen_ids:
                 results.append({'doc_id': doc_id, 'score': score})
                 seen_ids.add(doc_id)  # Marca o ID como já visto
 
@@ -80,14 +80,14 @@ class SearchKW():
                         "content": keyword # Use cada termo textual para busca
                     }
                 },
-                size=100  # Número de resultados retornados por busca
+                size=20  # Número de resultados retornados por busca
             )
 
             # Adicionar resultados à lista geral
             for hit in response['hits']['hits']:
                 doc_id = hit['_source']['doc_id']
                 score = hit['_score']
-                if not score<6:
+                if not score<5:
                     all_results.append({'doc_id': doc_id, 'score': score})
 
         # Ordenar os resultados por score em ordem decrescente
