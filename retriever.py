@@ -44,17 +44,20 @@ class SearchVS():
             }
         }
 
-        response = es.search(index="vector_index", body={"query": queryVec, "size": 100})
-
         results = []
+        seen_ids = set()  # Set para controlar IDs já vistos
+
+        response = es.search(index="vector_index", body={"query": queryVec, "size": 100})
+        
         for hit in response['hits']['hits']:
             doc_id = hit['_source']['doc_id']
             score = hit['_score']
-            if score > 1.0:
+            if score > 1.5 and doc_id not in seen_ids:  # Verifica duplicados
                 results.append({'doc_id': doc_id, 'score': score})
-        
+                seen_ids.add(doc_id)  # Marca o ID como já visto
 
         return {"VS": results}
+    
 @component
 class SearchKW():
 
@@ -74,17 +77,18 @@ class SearchKW():
                 index="keyword_index",
                 query={
                     "match_phrase": {
-                        "content": keyword  # Use cada termo textual para busca
+                        "content": keyword # Use cada termo textual para busca
                     }
                 },
-                size=8  # Número de resultados retornados por busca
+                size=100  # Número de resultados retornados por busca
             )
 
             # Adicionar resultados à lista geral
             for hit in response['hits']['hits']:
                 doc_id = hit['_source']['doc_id']
                 score = hit['_score']
-                all_results.append({'doc_id': doc_id, 'score': score})
+                if not score<6:
+                    all_results.append({'doc_id': doc_id, 'score': score})
 
         # Ordenar os resultados por score em ordem decrescente
         all_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
@@ -95,8 +99,8 @@ class SearchKW():
             if result['doc_id'] not in unique_results:
                 unique_results[result['doc_id']] = result
 
-        # Selecionar os 8 documentos com maior score
-        final_results = list(unique_results.values())[:8]
+        
+        final_results = list(unique_results.values())
         
 
         return {"KW": final_results}
