@@ -4,17 +4,23 @@ from haystack.components.embedders import SentenceTransformersTextEmbedder, Sent
 from haystack import component, Document
 from sentence_transformers import SentenceTransformer
 import spacy
+from typing import List,Dict
+import hashlib
+
 
 nlp = spacy.load("en_core_web_sm")
 
-#key="4pd-HHNXzRF_yapcrUOn"
 key="4pd-HHNXzRF_yapcrUOn"
+# key="FS2ICIGE6xeta*f8dzwf"
 
 @component
 class SearchVS():
     
-    @component.output_types(response=dict)
-    def run(self,user_prompt: str):
+    def __init__(self,size) -> None:
+        self.size=size
+
+    @component.output_types(documents=List[Document])
+    def run(self,prompt_mod: Dict):
         # Conectar ao Elasticsearch
         es = Elasticsearch(
             hosts="https://localhost:9200",
@@ -22,88 +28,100 @@ class SearchVS():
             verify_certs=False
         )
 
+        keyword_prompts = prompt_mod.get("vector_prompt", []) 
+        if not keyword_prompts or not isinstance(keyword_prompts, list):  
+            raise ValueError("O dicionário de entrada não contém a chave 'vector_prompt' ou ela não é uma lista.")  
+          
+        all_documents = []  
   
+        for user_prompt in keyword_prompts:
+            embedder = SentenceTransformersTextEmbedder()
 
-        embedder = SentenceTransformersTextEmbedder()
+            # Inicializa o modelo de embeddings
+            embedder.warm_up()
+            # Inicializa o modelo de embeddings
 
-        # Inicializa o modelo de embeddings
-        embedder.warm_up()
-        # Inicializa o modelo de embeddings
+            prompt_mimi=embedder.run(user_prompt)
+            # print(len(prompt_mimi['embedding']))
 
-        prompt_mimi=embedder.run(user_prompt)
-
-        # print(len(prompt_mimi['embedding']))
-
-        queryVec = {
-            "script_score": {
-                "query": {"match_all": {}},
-                "script": {
-                    "source": "cosineSimilarity(params.query_vector, 'content') + 1.0",
-                    "params": {"query_vector": prompt_mimi["embedding"]}
+            queryVec = {
+                "script_score": {
+                    "query": {"match_all": {}},
+                    "script": {
+                        "source": "cosineSimilarity(params.query_vector, 'content') + 1.0",
+                        "params": {"query_vector": prompt_mimi["embedding"]}
+                    }
                 }
             }
-        }
 
-        results = []
-        seen_ids = set()  # Set para controlar IDs já vistos
+            results = []
+            seen_ids = set()  # Set para controlar IDs já vistos
 
-        response = es.search(index="vector_index", body={"query": queryVec, "size": 20})
+            response = es.search(index="vector_index", body={"query": queryVec, "size": self.size})
 
-        for hit in response['hits']['hits']:
-            doc_id = hit['_source']['doc_id']
-            score = hit['_score']
-            if score > 1 and doc_id not in seen_ids:
-                results.append({'doc_id': doc_id, 'score': score})
-                seen_ids.add(doc_id)  # Marca o ID como já visto
-
-        return {"VS": results}
+            for hit in response['hits']['hits']:
+                doc_id = hit['_source']['doc_id']
+                score = hit['_score']
+                if doc_id not in seen_ids:
+                    doc=Document(  
+                    id=hashlib.sha256(doc_id.encode()).hexdigest(),
+                    content=doc_id,
+                    score=score  
+                )
+                    seen_ids.add(doc_id)  # Marca o ID como já visto
+            all_documents.append(doc)
+        return {"documents": all_documents}
     
 @component
 class SearchKW():
 
-    @component.output_types(response=dict)
-    def run(self,user_prompt:str):
+    def __init__(self,size) -> None:
+        self.size=size
+
+    @component.output_types(documents=List[Document])
+    def run(self,prompt_mod:Dict):
         es = Elasticsearch(
             hosts="https://localhost:9200",
             http_auth=("elastic", key),
             verify_certs=False
         )
         all_results = []
-        user_prompt=extract_keywords(user_prompt)
+        keyword_prompts = prompt_mod.get("keyword_prompt", [])  
+        if not keyword_prompts or not isinstance(keyword_prompts, list):  
+            raise ValueError("O dicionário de entrada não contém a chave 'keyword_prompt' ou ela não é uma lista.")  
+          
 
-        for keyword in user_prompt:
-            # Consulta por uma única keyword
+        for keyword in keyword_prompts[0]:
+            user_prompt=extract_keywords(keyword)
+            # for prompt in user_prompt:
+                # Consulta por uma única keyword
             response = es.search(
                 index="keyword_index",
-                query={
-                    "match_phrase": {
-                        "content": keyword # Use cada termo textual para busca
+                query = {
+                    "bool": {
+                        "should": [
+                            {"match": {"content": keyword}} for keyword in user_prompt
+                        ],
+                        "minimum_should_match": 3
                     }
                 },
-                size=20  # Número de resultados retornados por busca
+                size=self.size  # Número de resultados retornados por busca
             )
-
             # Adicionar resultados à lista geral
             for hit in response['hits']['hits']:
                 doc_id = hit['_source']['doc_id']
                 score = hit['_score']
-                if not score<5:
-                    all_results.append({'doc_id': doc_id, 'score': score})
+                doc=Document(  
+                id=hashlib.sha256(doc_id.encode()).hexdigest(),
+                content=doc_id,    
+                score= score,
 
-        # Ordenar os resultados por score em ordem decrescente
-        all_results = sorted(all_results, key=lambda x: x['score'], reverse=True)
+                    
+            )                      
+                all_results.append(doc)
 
-        # Remover duplicados, mantendo o maior score (opcional)
-        unique_results = {}
-        for result in all_results:
-            if result['doc_id'] not in unique_results:
-                unique_results[result['doc_id']] = result
 
-        
-        final_results = list(unique_results.values())
-        
-
-        return {"KW": final_results}
+        return {"documents": all_results}
     
 
 

@@ -4,6 +4,7 @@ from haystack import Document
 from haystack import Pipeline
 from haystack.components.preprocessors import DocumentSplitter
 from writer import save_vs,save_kw
+from llm import LLMPrompt,JoinDocuments
 from retriever import SearchVS,SearchKW
 from spacy_ner import SpacyNERComponent
 import os
@@ -49,16 +50,23 @@ def indexing(docs):
 
 
 
-def retrieval(prompt):
+def retrieval(prompt,size):
+
+    join_documents = JoinDocuments(join_mode="distribution_based_rank_fusion")
     retrieval_pipeline = Pipeline()
-    retrieval_pipeline.add_component("VS", SearchVS())
-    retrieval_pipeline.add_component("KW", SearchKW())
-
-    res = retrieval_pipeline.run({"VS":{"user_prompt": prompt},"KW": {"user_prompt": prompt}})
-
+    retrieval_pipeline.add_component("PE",LLMPrompt())
+    retrieval_pipeline.add_component("VS", SearchVS(size))
+    retrieval_pipeline.add_component("KW", SearchKW(size))
+    retrieval_pipeline.add_component("JD",join_documents)
+    retrieval_pipeline.connect("PE","VS")
+    retrieval_pipeline.connect("PE","KW")
+    retrieval_pipeline.connect("KW","JD")
+    retrieval_pipeline.connect("VS","JD")
+    res = retrieval_pipeline.run({"user_prompt": prompt})
+    
     return res
 
 #indexing(haystack_docs)
 
-result= retrieval("How fish increases immunity?")
+result= retrieval("How plant-based diets help prevent specific diseases.",5)
 print(result)
