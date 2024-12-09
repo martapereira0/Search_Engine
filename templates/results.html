@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resultados</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Resultados para "{{ query }}"</h1>
+        <div class="results-grid">
+            {% for result in results %}
+                <div class="result-card">
+                    <p>{{ result['title'] }}</p>
+                    <p>{{ result['score'] | round(2)}}</p>
+                </div>
+            {% else %}
+                <p>Nenhum resultado encontrado.</p>
+            {% endfor %}
+        </div>
+        <a href="/">Voltar</a>
+    </div>
+</body>
+</html>
