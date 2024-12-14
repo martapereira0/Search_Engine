@@ -68,7 +68,7 @@ def retrieval(prompt,size):
 
 #indexing(haystack_docs)
 
-#result= retrieval("How plant-based diets help prevent specific diseases.")
+result= retrieval("Exploiting Autophagy to Live Longer",4)
 #result=retrieval("Natural treatments for rheumatoid arthritis.")
 #result=retrieval("Effects of high-cholesterol foods on heart disease risk.")
 #result=retrieval("Traditional medicine vs. holistic treatments.")
@@ -106,4 +106,4 @@ for doc_id in common_docs:
 # Imprimir a quantidade de documentos em comum
 print(f"\nQuantidade de documentos em comum: {len(common_docs)}")"""
 
-#print(result)
+print(result)

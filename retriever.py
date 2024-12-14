@@ -92,35 +92,35 @@ class SearchKW():
             raise ValueError("O dicionário de entrada não contém a chave 'keyword_prompt' ou ela não é uma lista.")  
         print(prompt_mod)
         print(keyword_prompts)
-        # for keyword in keyword_prompts[0]:
-        user_prompt=extract_keywords(keyword_prompts[0])
-        # for prompt in user_prompt:
-            # Consulta por uma única keyword
-        print(user_prompt)
-        response = es.search(
-            index="keyword_index",
-            query = {
-                "bool": {
-                    "should": [
-                        {"match": {"content": keyword}} for keyword in user_prompt
-                    ],
-                    "minimum_should_match": 1
-                }
-            },
-            size=self.size  # Número de resultados retornados por busca
-        )
-        # Adicionar resultados à lista geral
-        for hit in response['hits']['hits']:
-            doc_id = hit['_source']['doc_id']
-            score = hit['_score']
-            doc=Document(  
-            id=hashlib.sha256(doc_id.encode()).hexdigest(),
-            content=doc_id,    
-            score= score,
+        for keywords in prompt_mod:
+            # user_prompt=extract_keywords(keyword_prompts[0])
+            # for prompt in user_prompt:
+                # Consulta por uma única keyword
+            # print(user_prompt)
+            response = es.search(
+                index="keyword_index",
+                query = {
+                    "bool": {
+                        "should": [
+                            {"match": {"content": keyword}} for keyword in keywords
+                        ],
+                        "minimum_should_match": 2
+                    }
+                },
+                size=self.size  # Número de resultados retornados por busca
+            )
+            # Adicionar resultados à lista geral
+            for hit in response['hits']['hits']:
+                doc_id = hit['_source']['doc_id']
+                score = hit['_score']
+                doc=Document(  
+                id=hashlib.sha256(doc_id.encode()).hexdigest(),
+                content=doc_id,    
+                score= score,
 
-                
-        )                      
-            all_results.append(doc)
+                    
+            )                      
+                all_results.append(doc)
 
         print("KW", all_results)
         return {"documents": all_results}

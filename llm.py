@@ -6,7 +6,7 @@ from openai import AzureOpenAI
 from haystack.components.joiners.document_joiner import DocumentJoiner as JoinDocuments
 from transformers import AutoTokenizer,AutoModelForCausalLM,BitsAndBytesConfig
 import torch
-
+from groq import Groq
 from huggingface_hub import InferenceClient
 
 
@@ -55,23 +55,19 @@ class LLMPrompt:
 
         messages=[{"role": "system", "content": sys}]+ examples+[{"role": "user", "content": question}]
 
-        stream = client.chat.completions.create(
-            model="meta-llama/Llama-3.2-1B-Instruct", 
-            messages=messages, 
-            temperature=0.5,
+        client = Groq(api_key="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")
+        completion = client.chat.completions.create(
+            model="llama3-8b-8192",
+            messages=messages,
+            temperature=1,
             max_tokens=1024,
-            top_p=0.7,
-            stream=True
+            top_p=1,
+            stop=None,
         )
 
-        full_response = ""
-
-        # Iterar sobre cada chunk, acumulando o conteúdo
-        for chunk in stream:
-            full_response += chunk.choices[0].delta.content  # ou "text", dependendo da estrutura do chunk
-
+        
         # Imprimir toda a resposta junta
-        return full_response
+        return completion.choices[0].message.content
         
     @component.output_types(prompt_mod=Dict)
     def run(self, user_prompt: str):
@@ -81,7 +77,7 @@ class LLMPrompt:
 
         while attempts < max_attempts:
             response = self.answer_question(user_prompt)
-            print(response)
+            # print(response)
 
             try:
                 response_json = json.loads(response)
