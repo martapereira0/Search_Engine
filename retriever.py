@@ -10,8 +10,8 @@ import hashlib
 
 nlp = spacy.load("en_core_web_sm")
 
-key="4pd-HHNXzRF_yapcrUOn"
-# key="FS2ICIGE6xeta*f8dzwf"
+# key="4pd-HHNXzRF_yapcrUOn"
+key="FS2ICIGE6xeta*f8dzwf"
 
 @component
 class SearchVS():
@@ -70,6 +70,7 @@ class SearchVS():
                 )
                     seen_ids.add(doc_id)  # Marca o ID como já visto
             all_documents.append(doc)
+        print("VS", all_documents)
         return {"documents": all_documents}
     
 @component
@@ -89,45 +90,49 @@ class SearchKW():
         keyword_prompts = prompt_mod.get("keyword_prompt", [])  
         if not keyword_prompts or not isinstance(keyword_prompts, list):  
             raise ValueError("O dicionário de entrada não contém a chave 'keyword_prompt' ou ela não é uma lista.")  
-          
+        print(prompt_mod)
+        print(keyword_prompts)
+        # for keyword in keyword_prompts[0]:
+        user_prompt=extract_keywords(keyword_prompts[0])
+        # for prompt in user_prompt:
+            # Consulta por uma única keyword
+        print(user_prompt)
+        response = es.search(
+            index="keyword_index",
+            query = {
+                "bool": {
+                    "should": [
+                        {"match": {"content": keyword}} for keyword in user_prompt
+                    ],
+                    "minimum_should_match": 1
+                }
+            },
+            size=self.size  # Número de resultados retornados por busca
+        )
+        # Adicionar resultados à lista geral
+        for hit in response['hits']['hits']:
+            doc_id = hit['_source']['doc_id']
+            score = hit['_score']
+            doc=Document(  
+            id=hashlib.sha256(doc_id.encode()).hexdigest(),
+            content=doc_id,    
+            score= score,
 
-        for keyword in keyword_prompts[0]:
-            user_prompt=extract_keywords(keyword)
-            # for prompt in user_prompt:
-                # Consulta por uma única keyword
-            response = es.search(
-                index="keyword_index",
-                query = {
-                    "bool": {
-                        "should": [
-                            {"match": {"content": keyword}} for keyword in user_prompt
-                        ],
-                        "minimum_should_match": 3
-                    }
-                },
-                size=self.size  # Número de resultados retornados por busca
-            )
-            # Adicionar resultados à lista geral
-            for hit in response['hits']['hits']:
-                doc_id = hit['_source']['doc_id']
-                score = hit['_score']
-                doc=Document(  
-                id=hashlib.sha256(doc_id.encode()).hexdigest(),
-                content=doc_id,    
-                score= score,
+                
+        )                      
+            all_results.append(doc)
 
-                    
-            )                      
-                all_results.append(doc)
-
-
+        print("KW", all_results)
         return {"documents": all_results}
     
 
 
 def extract_keywords(text):
     # Processar o texto
+    print(text)
     doc = nlp(text)
     # Extrair substantivos ou palavras relevantes
     keywords = [token.text for token in doc if token.pos_ in ["NOUN", "PROPN"]]
+    print(keywords)
+    print("---")
     return keywords
